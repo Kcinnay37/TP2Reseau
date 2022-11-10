@@ -1,58 +1,32 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-
-public class Resolver extends Server
+public class Resolver  extends Server
 {
-    public Resolver()
+
+    @Override
+    public void Get(String cmd, String path, String domainName)
     {
-        cache = new HashMap<String, String>();
+        // prend le id et le port du root server ---------------------------------
+        String root = GetValueMasterFile(path, "root");
+
+        String ipRoot = "";
+        int i = 2;
+        while(root.charAt(i) != '\t')
+        {
+            ipRoot += root.charAt(i++);
+        }
+        i += 3;
+        String portRoot = "";
+        for(; i < root.length(); i++)
+        {
+            portRoot += root.charAt(i);
+        }
+        // -----------------------------------------------------------------------
+        System.out.println(ipRoot);
+        System.out.println(portRoot);
     }
 
     @Override
-    public void CmdReceive(String cmd)
+    public void Put(String cmd, String path, String domainName, String ip, String port)
     {
-//        String cmdName = "";
-//
-//        int i = 0;
-//        while(cmd.charAt(i) != ' ')
-//        {
-//            cmdName += cmd.charAt(i++);
-//        }
-//        i++;
-//
-//        ArrayList<String> domaineNames = new ArrayList<String>();
-//        String currDomaineName = "";
-//
-//        while(cmd.charAt(i) != '\n')
-//        {
-//            if(cmd.charAt(i) == '.')
-//            {
-//                domaineNames.add(currDomaineName);
-//                i++;
-//                currDomaineName = "";
-//                continue;
-//            }
-//            else
-//            {
-//                currDomaineName += cmd.charAt(i++);
-//            }
-//        }
-//        domaineNames.add(currDomaineName);
-//
-//        System.out.println(cmd);
-//        switch (cmdName)
-//        {
-//            case "GET":
-//                m_RequestHost.print("ca Get bordel\r\n");
-//                break;
-//            case "PUT":
-//
-//                break;
-//        }
 
-        System.out.println(cmd);
-
-        m_RequestHost.print("end\r\n");
-        m_RequestHost.flush();
     }
 }

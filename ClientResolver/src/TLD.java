@@ -1,15 +1,14 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-
-public class TLD extends Server
+public class TLD  extends Server
 {
-    public TLD()
+
+    @Override
+    public void Get(String cmd, String path, String domainName)
     {
-        cache = new HashMap<String, String>();
+
     }
 
     @Override
-    public void CmdReceive(String cmd)
+    public void Put(String cmd, String path, String domainName, String ip, String port)
     {
 
     }

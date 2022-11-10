@@ -106,8 +106,8 @@ public class Client extends MyRunnable
     // 0000000000000000, 9999999999999999: integer specifying number name server resource records in the authority records section
     // 0000000000000000, 9999999999999999: integer specifying number resource records in the additional records section
     //QUESTION ---------------------------------------------------------------------------------------------------------------
-    //QNAME: nom de domaine
-    //QTYPE
+    //QNAME: longeur nom de domaine + nom de domaine
+    //QTYPE 00: 2 octet, type of the query
     //QCLASS 00: 2 octet class of the query ex: IN for internet
     //RESPONSE ---------------------------------------------------------------------------------------------------------------
     //NAME: Domaine name
@@ -123,6 +123,74 @@ public class Client extends MyRunnable
 
     public void CmdSend(String cmd)
     {
+        // input ---------------------------------------------------------
+        //nom de domain
+        String nd = "";
+        //address
+        String add = "";
+        String port = "";
+
+        String QType = "";
+
+        try
+        {
+            if(cmd.contains("GET"))
+            {
+                System.out.print("Entrer le nom de domaine: ");
+                nd = in.readLine();
+
+                QType = "16";
+            }
+            else if(cmd.contains("PUT"))
+            {
+                System.out.print("Entrer le nom de domaine: ");
+                nd = in.readLine();
+
+                System.out.print("Entrer l'adresse: ");
+                add = in.readLine();
+
+                System.out.print("Entrer le port: ");
+                port = in.readLine();
+
+                QType = "01";
+            }
+            else
+            {
+                return;
+            }
+        }
+        catch (IOException e)
+        {
+            System.out.println(e);
+        }
+
+        //longeur du domaine name et de laddress
+        String rangeDn = String.valueOf(nd.length());
+        if(rangeDn.length() == 1)
+        {
+            rangeDn = '0' + rangeDn;
+        }
+
+        //longeur de l'address
+        String rangeAdd = String.valueOf(add.length());
+        if(!rangeAdd.equals("0"))
+        {
+            if(rangeAdd.length() == 1)
+            {
+                rangeAdd = '0' + rangeAdd;
+            }
+        }
+
+        //longeur du port
+        String rangePort = String.valueOf(port.length());
+        if(!rangePort.equals("0"))
+        {
+            if(rangePort.length() == 1)
+            {
+                rangePort = '0' + rangePort;
+            }
+        }
+
         //Header -------------------------------------------------------
         m_Request.print("0\r\n");
         m_Request.print("0000\r\n");
@@ -132,40 +200,23 @@ public class Client extends MyRunnable
         m_Request.print("0\r\n");
         m_Request.print("0\r\n");
         m_Request.print("0000\r\n");
+        m_Request.print("0000000000000000\r\n");
+        m_Request.print("0000000000000000\r\n");
+        m_Request.print("0000000000000000\r\n");
+        m_Request.print("0000000000000000\r\n");
 
         //Question -----------------------------------------------------
-        String nd = "";
-        try
+        m_Request.print(rangeDn + nd + "\r\n");
+        if(!rangeAdd.equals("0"))
         {
-            System.out.println("Entrer le nom de domaine: ");
-            nd = in.readLine();
+            m_Request.print(rangeAdd + add + "\r\n");
         }
-        catch (IOException e)
+        if(!rangePort.equals("0"))
         {
-            System.out.println(e);
-        }
-        m_Request.print(nd + "\r\n");
-
-        if(cmd.contains("GET"))
-        {
-            m_Request.print("TXT\r\n");
-        }
-        else if(cmd.contains("PUT"))
-        {
-            String add = "";
-            try
-            {
-                System.out.println("Entrer l'adresse: ");
-                add = in.readLine();
-            }
-            catch (IOException e)
-            {
-                System.out.println(e);
-            }
-            m_Request.print(add + "\r\n");
-            m_Request.print("A");
+            m_Request.print(rangePort + port + "\r\n");
         }
 
+        m_Request.print(QType);
         m_Request.print("IN\r\n");
 
         // fin --------------------------------------------------------

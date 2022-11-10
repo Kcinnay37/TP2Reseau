@@ -8,35 +8,56 @@ public class Main
     {
         //cree tout les servers et client -----------------------------------------
         Client client = new Client();
-        client.SetAddressPort("192.168.2.26", 500);
+        client.SetAddressPort("192.168.2.26", 10000);
 
         Server dnsResolver = new Resolver();
-        dnsResolver.SetPortHost(500);
+        dnsResolver.SetPortHost(10000);
+        dnsResolver.SetPathMasterFile("MasterFile\\Resolver.txt");
 
         Server rootServer = new Root();
-        rootServer.SetPortHost(501);
+        rootServer.SetPortHost(10001);
+        rootServer.SetPathMasterFile("MasterFile\\Root.txt");
+        rootServer.SetUpdateLoop(false);
 
-        Server tldServer = new TLD();
-        tldServer.SetPortHost(502);
+        Server tldServer_Com = new TLD();
+        tldServer_Com.SetPortHost(10002);
+        tldServer_Com.SetPathMasterFile("MasterFile\\TLD_Com.txt");
+        tldServer_Com.SetUpdateLoop(false);
 
-        Server authoritativeNameServer = new Autoritative();
-        authoritativeNameServer.SetPortHost(503);
+        Server tldServer_Ca = new TLD();
+        tldServer_Ca.SetPortHost(10003);
+        tldServer_Ca.SetPathMasterFile("MasterFile\\TLD_Ca.txt");
+        tldServer_Ca.SetUpdateLoop(false);
+
+        Server authoritativeNameServer_Com = new Authoritative();
+        authoritativeNameServer_Com.SetPortHost(10004);
+        authoritativeNameServer_Com.SetPathMasterFile("MasterFile\\Authoritative_Com.txt");
+        authoritativeNameServer_Com.SetUpdateLoop(false);
+
+        Server authoritativeNameServer_Ca = new Authoritative();
+        authoritativeNameServer_Ca.SetPortHost(10005);
+        authoritativeNameServer_Ca.SetPathMasterFile("MasterFile\\Authoritative_Ca.txt");
+        authoritativeNameServer_Ca.SetUpdateLoop(false);
         //--------------------------------------------------------------
 
         //les associ a des thread -----------------------------------------------------------------------------
         Thread threadClient = new Thread(client, "threadClient");
         Thread threadResolver = new Thread(dnsResolver, "threadResolver");
         Thread threadRoot = new Thread(rootServer, "threadRoot");
-        Thread threadTld = new Thread(tldServer, "threadTld");
-        Thread threadAuthoritativeName = new Thread(authoritativeNameServer, "threadAuthoritativeName");
+        Thread threadTld_Com = new Thread(tldServer_Com, "threadTld_Com");
+        Thread threadTld_Ca = new Thread(tldServer_Ca, "threadTld_Ca");
+        Thread threadAuthoritativeName_Com = new Thread(authoritativeNameServer_Com, "threadAuthoritativeName_Com");
+        Thread threadAuthoritativeName_Ca = new Thread(authoritativeNameServer_Ca, "threadAuthoritativeName_Ca");
         // ----------------------------------------------------------------------------------------------------
 
         // Lance tout les thread ------------------------------------------------------------------------------
         threadClient.start();
         threadResolver.start();
         threadRoot.start();
-        threadTld.start();
-        threadAuthoritativeName.start();
+        threadTld_Com.start();
+        threadTld_Ca.start();
+        threadAuthoritativeName_Com.start();
+        threadAuthoritativeName_Ca.start();
         //-----------------------------------------------------------------------------------------------------
     }
 }

@@ -27,11 +27,22 @@ public abstract class Server extends MyRunnable
     protected int portConnect = 0;
     protected String addressConnect = "";
 
+    protected String path;
+
     protected String line = "";
 
     protected boolean updateLoop = true;
 
     protected HashMap<String, String> cache;
+
+    protected int idLenght = 9;
+    protected int headerLenght = 87;
+
+    public Server()
+    {
+        path = "";
+        cache = new HashMap<String, String>();
+    }
 
     public void Start()
     {
@@ -93,6 +104,7 @@ public abstract class Server extends MyRunnable
             m_ResponseHost.close();
             m_SocketHost.close();
             m_ServerHost.close();
+            updateLoop = true;
         }
         catch (IOException e)
         {
@@ -100,7 +112,81 @@ public abstract class Server extends MyRunnable
         }
     }
 
-    public abstract void CmdReceive(String cmd);
+    public void CmdReceive(String cmd)
+    {
+        System.out.println(cmd);
+        if(cmd.charAt(idLenght) == '0')
+        {
+            String QType = cmd.substring(cmd.length() - 5, cmd.length() - 3);
+
+            // GET le domain name dans la cmd ----------------------------------------------------------
+            String domainName = "";
+            String rangeDomainName = "";
+            for(int i = headerLenght; i < headerLenght + 2; i++)
+            {
+                rangeDomainName += cmd.charAt(i);
+            }
+
+            for(int i = headerLenght + 2; i < headerLenght + 2 + Integer.parseInt(rangeDomainName); i++)
+            {
+                domainName += cmd.charAt(i);
+            }
+            // -----------------------------------------------------------------------------------------
+
+            switch (QType)
+            {
+                case "01":
+                    //PUT cmd
+
+                    // GET le IP dans la cmd ----------------------------------------------------------
+                    String ip = "";
+                    String rangeIp = "";
+                    int currIndex = headerLenght + 2 + Integer.parseInt(rangeDomainName);
+                    for(int i = currIndex; i < currIndex + 2; i++)
+                    {
+                        rangeIp += cmd.charAt(i);
+                    }
+
+                    for(int i = currIndex + 2; i < currIndex + 2 + Integer.parseInt(rangeIp); i++)
+                    {
+                        ip += cmd.charAt(i);
+                    }
+                    // -----------------------------------------------------------------------------------------
+
+                    // GET le PORT dans la cmd ----------------------------------------------------------
+                    String port = "";
+                    String rangePort = "";
+                    currIndex = currIndex + 2 + Integer.parseInt(rangeIp);
+                    for(int i = currIndex; i < currIndex + 2; i++)
+                    {
+                        rangePort += cmd.charAt(i);
+                    }
+
+                    for(int i = currIndex + 2; i < currIndex + 2 + Integer.parseInt(rangePort); i++)
+                    {
+                        port += cmd.charAt(i);
+                    }
+                    // -----------------------------------------------------------------------------------------
+                    Put(cmd, path, domainName, ip, port);
+                    //AddValueMasterFile(path, domainName, ip, port);
+                    break;
+                case "16":
+                    //GET cmd
+                    Get(cmd, path, domainName);
+                    //GetValueMasterFile(path, domainName);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+
+        }
+
+        m_RequestHost.print("end\r\n");
+        m_RequestHost.flush();
+    }
 
     public void SetPortHost(int port)
     {
@@ -109,6 +195,11 @@ public abstract class Server extends MyRunnable
     public void SetAddressConnect(String address)
     {
         this.addressConnect = address;
+    }
+
+    public void SetPathMasterFile(String path)
+    {
+        this.path = path;
     }
 
     public void Connect()
@@ -130,7 +221,7 @@ public abstract class Server extends MyRunnable
         }
     }
 
-    public void disconnect()
+    public void Disconnect()
     {
         try
         {
@@ -144,4 +235,136 @@ public abstract class Server extends MyRunnable
             System.out.println(e);
         }
     }
+
+    public String GetServerConnectResponse()
+    {
+        String response = "";
+        try
+        {
+            String responseLine = "";
+            while(!(responseLine = m_ResponseConnect.readLine()).equals("end"))
+            {
+                response += responseLine;
+            }
+        }
+        catch (IOException e)
+        {
+            System.out.println(e);
+        }
+        return response;
+    }
+
+    public void AddValueMasterFile(String path, String domainName, String ip, String port)
+    {
+        try
+        {
+            // ouvre le file et le cree s'il n'existe pas -----------------------------------
+            File file = new File(path);
+            file.createNewFile();
+            // ------------------------------------------------------------------------------
+
+            //prend les donner existant dans le file -----------------------------------------
+            Scanner reader = new Scanner(file);
+            String fileData = "";
+            while (reader.hasNextLine())
+            {
+                fileData += reader.nextLine() + '\n';
+            }
+            reader.close();
+            // -------------------------------------------------------------------------------
+
+            // Update du data dans le file ---------------------------------------------------
+            String firstDomainName = "";
+            for(int i = 0; i < domainName.length(); i++)
+            {
+                if(domainName.charAt(i) == '.')
+                {
+                    break;
+                }
+                firstDomainName += domainName.charAt(i);
+            }
+
+
+            fileData = '\t' + "NS\t" + domainName + '\n' +
+                        fileData +
+                        firstDomainName + '\t' + 'A' + '\t' + ip + '\t' + 'P' + '\t' + port + '\n';
+            // -------------------------------------------------------------------------------
+
+            // ecrit le data dans le file ----------------------------------------------------
+            FileWriter writer = new FileWriter(path);
+            writer.write(fileData);
+            writer.close();
+            // -------------------------------------------------------------------------------
+
+            System.out.println(fileData);
+        } catch (IOException e)
+        {
+            System.out.println(e);
+        }
+    }
+
+    public String GetValueMasterFile(String path, String domainName)
+    {
+        try
+        {
+            // ouvre le file ----------------------------------------------------------------
+            File file = new File(path);
+
+            // prend le premier nom de domaine pour la recherche ----------------------------
+            String firstDomainName = "";
+            for(int i = 0; i < domainName.length(); i++)
+            {
+                if(domainName.charAt(i) == '.')
+                {
+                    break;
+                }
+                firstDomainName += domainName.charAt(i);
+            }
+            // -------------------------------------------------------------------------------
+
+            // prend les donner existant dans le file -----------------------------------------
+            Scanner reader = new Scanner(file);
+            String fileData = "";
+            while (reader.hasNextLine())
+            {
+                fileData = reader.nextLine();
+                if(fileData.charAt(0) != '\t' && fileData.contains(firstDomainName))
+                {
+                    break;
+                }
+            }
+            reader.close();
+            // -------------------------------------------------------------------------------
+
+            int conter = 0;
+            int i;
+            for(i = 0; i < fileData.length(); i++)
+            {
+                if(fileData.charAt(i) == '\t')
+                {
+                    if(conter != 0)
+                    {
+                        break;
+                    }
+                    conter++;
+                }
+            }
+            String value = 'A' + fileData.substring(i, fileData.length());
+            return value;
+        }
+        catch (IOException e)
+        {
+            System.out.println(e);
+        }
+        return "";
+    }
+
+    public void SetUpdateLoop(boolean value)
+    {
+        updateLoop = value;
+    }
+
+    public abstract void Get(String cmd, String path, String domainName);
+
+    public abstract void Put(String cmd, String path, String domainName, String ip, String port);
 }
