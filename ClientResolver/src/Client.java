@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Random;
 
 public class Client extends MyRunnable
 {
@@ -107,12 +108,12 @@ public class Client extends MyRunnable
     // 0000000000000000, 9999999999999999: integer specifying number resource records in the additional records section
     //QUESTION ---------------------------------------------------------------------------------------------------------------
     //QNAME: longeur nom de domaine + nom de domaine
-    //QTYPE 00: 2 octet, type of the query
-    //QCLASS 00: 2 octet class of the query ex: IN for internet
+    //QTYPE 0000 0000 0000 0000: 2 octet, type of the query
+    //QCLASS 0000 0000 0000 0000: 2 octet class of the query ex: IN for internet
     //RESPONSE ---------------------------------------------------------------------------------------------------------------
     //NAME: Domaine name
-    //TYPE 00: 2 octets containing RR type code
-    //CLASS 00: 2 octets specify class of the data in the RDATA field
+    //TYPE 0000 0000 0000 0000: 2 octets containing RR type code
+    //CLASS 0000 0000 0000 0000: 2 octets specify class of the data in the RDATA field
     //TTL 00000000000000000000000000000000: 32 octets integer time interval resource record
     //RDLENGTH 0000000000000000: 16 bit integer, specifies the length in octets of the RDATA field
     //RDATA variable length of octets: describes the resource
@@ -130,7 +131,7 @@ public class Client extends MyRunnable
         String add = "";
         String port = "";
 
-        String QType = "";
+        String opCode = "";
 
         try
         {
@@ -139,7 +140,7 @@ public class Client extends MyRunnable
                 System.out.print("Entrer le nom de domaine: ");
                 nd = in.readLine();
 
-                QType = "16";
+                opCode = "0000";
             }
             else if(cmd.contains("PUT"))
             {
@@ -152,7 +153,7 @@ public class Client extends MyRunnable
                 System.out.print("Entrer le port: ");
                 port = in.readLine();
 
-                QType = "01";
+                opCode = "0001";
             }
             else
             {
@@ -192,8 +193,12 @@ public class Client extends MyRunnable
         }
 
         //Header -------------------------------------------------------
+        Random rand = new Random();
+        int id = rand.nextInt(100000000, 999999999);
+
+        m_Request.print(String.valueOf(id) + "\r\n");
         m_Request.print("0\r\n");
-        m_Request.print("0000\r\n");
+        m_Request.print(opCode + "\r\n");
         m_Request.print("0\r\n");
         m_Request.print("0\r\n");
         m_Request.print("0\r\n");
@@ -216,8 +221,8 @@ public class Client extends MyRunnable
             m_Request.print(rangePort + port + "\r\n");
         }
 
-        m_Request.print(QType);
-        m_Request.print("IN\r\n");
+        m_Request.print("0000000000010000\r\n");
+        m_Request.print("0000000000000001\r\n");
 
         // fin --------------------------------------------------------
         m_Request.print("end\r\n");

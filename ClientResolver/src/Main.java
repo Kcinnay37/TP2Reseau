@@ -8,34 +8,34 @@ public class Main
     {
         //cree tout les servers et client -----------------------------------------
         Client client = new Client();
-        client.SetAddressPort("192.168.2.26", 10000);
+        client.SetAddressPort("192.168.0.186", 53);
 
         Server dnsResolver = new Resolver();
-        dnsResolver.SetPortHost(10000);
+        dnsResolver.SetPortHost(53);
         dnsResolver.SetPathMasterFile("MasterFile\\Resolver.txt");
 
         Server rootServer = new Root();
-        rootServer.SetPortHost(10001);
+        rootServer.SetPortHost(54);
         rootServer.SetPathMasterFile("MasterFile\\Root.txt");
         rootServer.SetUpdateLoop(false);
 
         Server tldServer_Com = new TLD();
-        tldServer_Com.SetPortHost(10002);
+        tldServer_Com.SetPortHost(55);
         tldServer_Com.SetPathMasterFile("MasterFile\\TLD_Com.txt");
         tldServer_Com.SetUpdateLoop(false);
 
         Server tldServer_Ca = new TLD();
-        tldServer_Ca.SetPortHost(10003);
+        tldServer_Ca.SetPortHost(56);
         tldServer_Ca.SetPathMasterFile("MasterFile\\TLD_Ca.txt");
         tldServer_Ca.SetUpdateLoop(false);
 
         Server authoritativeNameServer_Com = new Authoritative();
-        authoritativeNameServer_Com.SetPortHost(10004);
+        authoritativeNameServer_Com.SetPortHost(57);
         authoritativeNameServer_Com.SetPathMasterFile("MasterFile\\Authoritative_Com.txt");
         authoritativeNameServer_Com.SetUpdateLoop(false);
 
         Server authoritativeNameServer_Ca = new Authoritative();
-        authoritativeNameServer_Ca.SetPortHost(10005);
+        authoritativeNameServer_Ca.SetPortHost(58);
         authoritativeNameServer_Ca.SetPathMasterFile("MasterFile\\Authoritative_Ca.txt");
         authoritativeNameServer_Ca.SetUpdateLoop(false);
         //--------------------------------------------------------------

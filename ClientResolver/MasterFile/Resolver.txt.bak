@@ -1,6 +1,0 @@
-	NS	fas
-	NS	test2.com
-	NS	text1.com
-text1	A	1.1.1.1	P	80
-test2	A	2.2.2.2	P	80
-fas	A	34s	P	sf
