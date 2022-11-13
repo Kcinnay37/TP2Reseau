@@ -21,7 +21,7 @@ public abstract class Server extends MyRunnable
 
     protected InputStreamReader isrConnect = null;
     protected BufferedReader m_ResponseConnect = null;
-    protected PrintWriter m_RequestConnect = null;;
+    protected PrintWriter m_RequestConnect = null;
 
     protected int portHost = 0;
     protected int portConnect = 0;
@@ -33,15 +33,15 @@ public abstract class Server extends MyRunnable
 
     protected boolean updateLoop = true;
 
-    protected HashMap<String, String> cache;
-
     protected int idLenght = 9;
     protected int headerLenght = 87;
 
-    public Server()
+    protected Cache cache;
+
+    public Server(Cache cache)
     {
+        this.cache = cache;
         path = "";
-        cache = new HashMap<String, String>();
     }
 
     public void Start()
@@ -51,7 +51,7 @@ public abstract class Server extends MyRunnable
             // connection host --------------------------------------------------------------
             m_ServerHost = new ServerSocket(portHost);
 
-            System.out.println("En attente d'une connection");
+            //System.out.println("En attente d'une connection");
             m_SocketHost = m_ServerHost.accept();
             //System.out.println("Serveur connecter1");
 
@@ -109,7 +109,7 @@ public abstract class Server extends MyRunnable
 
     public void CmdReceive(String cmd)
     {
-        System.out.println(cmd);
+        System.out.print("Query: " + cmd);
         if(cmd.charAt(idLenght) == '0')
         {
             String opCode = cmd.substring(idLenght + 1, idLenght + 5);
@@ -246,8 +246,6 @@ public abstract class Server extends MyRunnable
             writer.write(fileData);
             writer.close();
             // -------------------------------------------------------------------------------
-
-            System.out.println(fileData);
         } catch (IOException e)
         {
             System.out.println(e);
@@ -276,15 +274,21 @@ public abstract class Server extends MyRunnable
             // prend les donner existant dans le file -----------------------------------------
             Scanner reader = new Scanner(file);
             String fileData = "";
+            boolean exist = false;
             while (reader.hasNextLine())
             {
                 fileData = reader.nextLine();
                 if(fileData.charAt(0) != '\t' && fileData.contains(firstDomainName))
                 {
+                    exist = true;
                     break;
                 }
             }
             reader.close();
+            if(!exist)
+            {
+                return "";
+            }
             // -------------------------------------------------------------------------------
 
             int conter = 0;
@@ -425,9 +429,7 @@ public abstract class Server extends MyRunnable
             index = index + 4 + Integer.parseInt(rangeIp) + Integer.parseInt(rangePort);
         }
 
-        System.out.println(cmd.charAt(index - 1));
-
-        return 0;
+        return index;
     }
 
     public void SetUpdateLoop(boolean value)

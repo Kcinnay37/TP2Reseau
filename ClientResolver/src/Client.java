@@ -62,10 +62,12 @@ public class Client extends MyRunnable
 
             // affiche la reponse a la console ------------------------------------
             String responseLine = "";
+            String line = "";
             while(!(responseLine = m_Response.readLine()).equals("end")) {
-                System.out.println(responseLine);
+                line += responseLine;
             }
-            System.out.println();
+            System.out.print("Response donner au client: ");
+            System.out.println(line);
             // --------------------------------------------------------------------
 
         }

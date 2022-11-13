@@ -1,0 +1,10 @@
+	NS	tuxmux.com
+	NS	inverse.com
+	NS	gnuherd.com
+	NS	centurion.com
+	NS	blog.com
+blog	A	198.16.148.105	P	80
+centurion	A	148.87.148.105	P	80
+gnuherd	A	69.17.206.10	P	80
+inverse	A	42.80.0.85	P	80
+tuxmux	A	206.198.08.05	P	80
